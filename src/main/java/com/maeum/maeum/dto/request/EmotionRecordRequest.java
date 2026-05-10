@@ -28,7 +28,4 @@ public class EmotionRecordRequest {
 
     //슬픔 수치 (0-10)
     private Double sadness;
-
-    //내가 선택한 이모지
-    private String myEmoji;
 }

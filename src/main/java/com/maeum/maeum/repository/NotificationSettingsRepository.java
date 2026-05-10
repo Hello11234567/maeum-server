@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface NotificationSettingsRepository {
+public interface NotificationSettingsRepository extends JpaRepository<NotificationSettings, Long> {
     //유저의 알림 설정 조회 (알림 설정 화면 불러오기)
     Optional<NotificationSettings> findByUser(User user);
 

@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface AiAnalysisRepository {
+public interface AiAnalysisRepository extends JpaRepository<AiAnalysis, Long> {
     //특정 날짜의 AI 분석 결과 조회
     //당일 결과 보기, 캘린더 날짜 길게 누르면 지난 결과 보기에 사용
     Optional<AiAnalysis> findByUserAndDate(User user, LocalDate date);

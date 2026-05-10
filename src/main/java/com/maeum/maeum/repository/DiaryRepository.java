@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface DiaryRepository {
+public interface DiaryRepository extends JpaRepository<Diary, Long> {
     //유저의 모든 일기 조회 (일기 화면 목록)
     List<Diary> findByUserOrderByDateDesc(User user);
 

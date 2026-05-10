@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface EmotionRecordRepository {
+public interface EmotionRecordRepository extends JpaRepository<EmotionRecord, Long> {
     //특정 날짜의 감정 기록 조회 (AI 분석 화면 기존 수치 불러오기)
     Optional<EmotionRecord> findByUserAndDate(User user, LocalDate date);
 
