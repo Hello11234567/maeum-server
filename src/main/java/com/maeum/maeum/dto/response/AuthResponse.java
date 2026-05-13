@@ -13,6 +13,9 @@ public class AuthResponse {
     //JWT 액세스 토큰
     private String accessToken;
 
+    //refresh token
+    private String refreshToken;
+
     //유저 ID
     private Long userId;
 
