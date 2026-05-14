@@ -53,6 +53,7 @@ public class EmotionRecordService {
     public Optional<EmotionRecordResponse> getTodayEmotionRecord(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+
         return emotionRecordRepository
                 .findByUserAndDate(user, LocalDate.now())
                 .map(this::toResponse);
@@ -62,6 +63,7 @@ public class EmotionRecordService {
     public List<EmotionRecordResponse> getEmotionRecordsByPeriod(Long userId, LocalDate startDate, LocalDate endDate) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+
         return emotionRecordRepository
                 .findByUserAndDateBetween(user, startDate, endDate)
                 .stream()
@@ -83,7 +85,7 @@ public class EmotionRecordService {
 
     //내 이모지 업데이트 (캘린더에서 날짜 클릭해서 이모지 선택할 때)
     @Transactional
-    public void updateMyEmoji(Long userId, EmojiUpdateRequest request) {
+    public EmotionRecordResponse updateMyEmoji(Long userId, EmojiUpdateRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
         EmotionRecord record = emotionRecordRepository
@@ -92,7 +94,9 @@ public class EmotionRecordService {
         record.setUser(user);
         record.setDate(request.getDate());
         record.setMyEmoji(request.getMyEmoji());
-        emotionRecordRepository.save(record);
+        EmotionRecord saved = emotionRecordRepository.save(record);
+
+        return toResponse(saved);
     }
 
     //EmotionRecord -> EmotionRecordResponse 변환

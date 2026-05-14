@@ -72,5 +72,6 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
         user.setNotificationsEnabled(enabled);
+        userRepository.save(user);
     }
 }

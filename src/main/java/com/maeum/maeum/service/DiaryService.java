@@ -30,7 +30,7 @@ public class DiaryService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
 
-        //당일 일기가 이미 있음ㄴ 수정, 없으면 새로 저장
+        //당일 일기가 이미 있으면 수정, 없으면 새로 저장
         Diary diary = diaryRepository.findByUserAndDate(user, request.getDate())
                 .orElse(new Diary());
 
@@ -45,6 +45,20 @@ public class DiaryService {
                 saved.getContent(),
                 saved.getCreatedAt()
         );
+    }
+
+    //특정 날짜 일기 조회 (Controller용)
+    public Optional<DiaryResponse> getDiary(Long userId, LocalDate date) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+
+        return diaryRepository.findByUserAndDate(user, date)
+                .map(diary -> new DiaryResponse(
+                        diary.getId(),
+                        diary.getDate(),
+                        diary.getContent(),
+                        diary.getCreatedAt()
+                ));
     }
 
     //일기 목록 조회 (일기 화면 리스트)
