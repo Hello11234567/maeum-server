@@ -60,7 +60,7 @@ public class DiaryController {
     //일기 수정
     //Flutter: diary_screen.dart (오늘 날짜 일기만 수정 가능)
     //@RequestBody: 수정된 일기 내용을 받음
-    @PutMapping("/{diaryId")
+    @PutMapping("/{diaryId}")
     public ResponseEntity<DiaryResponse> updateDiary (
             Authentication authentication,
             @PathVariable Long diaryId,
