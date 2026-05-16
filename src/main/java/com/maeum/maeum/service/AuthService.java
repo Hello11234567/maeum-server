@@ -15,7 +15,11 @@ import com.maeum.maeum.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.*;
+import org.springframework.web.client.RestTemplate;
+
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +27,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtUtil jwtUtil;
+    private final RestTemplate restTemplate;
 
     //카카오 로그인 처리
     //1. 카카오 인가 코드로 카카오 액세스 토큰 발급
@@ -35,9 +40,26 @@ public class AuthService {
         //1. 카카오 API 호출
         //2. 유저 정보 저장/조회
         //3. JWT 발급
-        String kakaoId = "test_kakao_id";
-        String nickname = "테스트유저";
-        String profileImage = null;
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer" + request.getAccessToken());
+
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
+                "https://kapi.kakao.com/v2/user/me",
+                HttpMethod.GET,
+                entity,
+                (Class<Map<String, Object>>) (Class<?>) Map.class
+        );
+
+        Map<String, Object> kakaoUser = response.getBody();
+        if (kakaoUser == null) throw new RuntimeException("카카오 유저 정보를 가져올 수 없습니다.");
+        String kakaoId = String.valueOf(kakaoUser.get("id"));
+
+        Map<String, Object> properties = (Map<String, Object>) kakaoUser.get("properties");
+        if (properties == null) throw new RuntimeException("카카오 프로필 정보를 가져올 수 없습니다.");
+        String nickname = (String) properties.get("nickname");
+        String profileImage = (String) properties.get("profile_image");
 
         //유저 저장 또는 조회
         User user = saveOrUpdateUser(kakaoId, nickname, profileImage);

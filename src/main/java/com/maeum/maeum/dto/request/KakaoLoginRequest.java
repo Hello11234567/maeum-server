@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class KakaoLoginRequest {
     //카카오 로그인 후 받은 인가 코드
-    private String code;
+    private String accessToken;
 }
