@@ -1,4 +1,4 @@
-# 🌱 마음이 서버 (maeum-server)
+# 🌿 마음이 서버 (maeum-server)
 
 ## 📖 소개
 마음이 앱의 Spring Boot 백엔드 서버입니다.
