@@ -37,3 +37,5 @@ out/
 .vscode/
 
 application.properties
+
+src/main/resources/maeum-f07e8-firebase-adminsdk-fbsvc-000105f021.json

@@ -36,7 +36,7 @@ public class NotificationController {
             Authentication authentication,
             @RequestBody NotificationSettingsRequest request) {
         Long userId = (Long) authentication.getPrincipal();
-        NotificationSettingsResponse response = notificationService.saveNotificationSetings(userId, request);
+        NotificationSettingsResponse response = notificationService.saveNotificationSettings(userId, request);
 
         return ResponseEntity.ok(response);
     }
