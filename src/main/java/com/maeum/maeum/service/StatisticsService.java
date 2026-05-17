@@ -8,10 +8,13 @@ package com.maeum.maeum.service;
 import com.maeum.maeum.dto.response.EmotionRecordResponse;
 import com.maeum.maeum.entity.AiAnalysis;
 import com.maeum.maeum.entity.User;
+import com.maeum.maeum.exception.CustomException;
+import com.maeum.maeum.exception.ErrorCode;
 import com.maeum.maeum.repository.AiAnalysisRepository;
 import com.maeum.maeum.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
@@ -98,7 +101,7 @@ public class StatisticsService {
 
         //AI 요약 조회 (임시 - OpenAI 연동 시 교체 예정)
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         List<AiAnalysis> analyses = aiAnalysisRepository
                 .findByUserAndDateBetweenOrderByDateAsc(user, weekStart, weekEnd);
         if (!analyses.isEmpty()) {
@@ -124,11 +127,11 @@ public class StatisticsService {
 
         //AI 요약 조회 (임시 - OpenAI 연동 시 교체 예정)
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         List<AiAnalysis> analyses = aiAnalysisRepository
                 .findByUserAndDateBetweenOrderByDateAsc(user, monthStart, monthEnd);
         if (!analyses.isEmpty()) {
-            result.put("aiSummary", analyses.get(analyses.size() -1).getSummary());
+            result.put("aiSummary", analyses.get(analyses.size() - 1).getSummary());
         }
 
         return result;

@@ -9,6 +9,8 @@ import com.maeum.maeum.dto.request.NotificationSettingsRequest;
 import com.maeum.maeum.dto.response.NotificationSettingsResponse;
 import com.maeum.maeum.entity.NotificationSettings;
 import com.maeum.maeum.entity.User;
+import com.maeum.maeum.exception.CustomException;
+import com.maeum.maeum.exception.ErrorCode;
 import com.maeum.maeum.repository.NotificationSettingsRepository;
 import com.maeum.maeum.repository.UserRepository;
 import com.maeum.maeum.repository.FcmTokenRepository;
@@ -33,7 +35,7 @@ public class NotificationService {
     //알림 설정 조회
     public NotificationSettingsResponse getNotificationSettings(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         NotificationSettings settings = notificationSettingsRepository
                 .findByUser(user)
@@ -59,7 +61,7 @@ public class NotificationService {
     @Transactional
     public NotificationSettingsResponse saveNotificationSettings(Long userId, NotificationSettingsRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         NotificationSettings settings = notificationSettingsRepository
                 .findByUser(user)

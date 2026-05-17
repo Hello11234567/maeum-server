@@ -10,6 +10,8 @@ import com.maeum.maeum.dto.response.EmotionRecordResponse;
 import com.maeum.maeum.dto.request.EmojiUpdateRequest;
 import com.maeum.maeum.entity.EmotionRecord;
 import com.maeum.maeum.entity.User;
+import com.maeum.maeum.exception.CustomException;
+import com.maeum.maeum.exception.ErrorCode;
 import com.maeum.maeum.repository.EmotionRecordRepository;
 import com.maeum.maeum.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +33,7 @@ public class EmotionRecordService {
     @Transactional
     public EmotionRecordResponse saveEmotionRecord(Long userId, EmotionRecordRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         EmotionRecord record = emotionRecordRepository
                 .findByUserAndDate(user, request.getDate())
@@ -52,7 +54,7 @@ public class EmotionRecordService {
     //당일 감정 수치 조회 (AI 분석 화면 기존 수치 불러오기, AI 분석 화면 들어갈 때)
     public Optional<EmotionRecordResponse> getTodayEmotionRecord(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         return emotionRecordRepository
                 .findByUserAndDate(user, LocalDate.now())
@@ -62,7 +64,7 @@ public class EmotionRecordService {
     //기간 별 감정 기록 조회 (주간/월간 통계 화면에 사용)
     public List<EmotionRecordResponse> getEmotionRecordsByPeriod(Long userId, LocalDate startDate, LocalDate endDate) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         return emotionRecordRepository
                 .findByUserAndDateBetween(user, startDate, endDate)
@@ -75,7 +77,7 @@ public class EmotionRecordService {
     @Transactional
     public void updateAiEmoji(Long userId, LocalDate date, String aiEmoji) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         emotionRecordRepository.findByUserAndDate(user, date)
                 .ifPresent(record -> {
                     record.setAiEmoji(aiEmoji);
@@ -87,7 +89,7 @@ public class EmotionRecordService {
     @Transactional
     public EmotionRecordResponse updateMyEmoji(Long userId, EmojiUpdateRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         EmotionRecord record = emotionRecordRepository
                 .findByUserAndDate(user, request.getDate())
                 .orElse(new EmotionRecord());

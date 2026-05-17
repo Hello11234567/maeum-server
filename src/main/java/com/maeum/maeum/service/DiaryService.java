@@ -10,6 +10,8 @@ import com.maeum.maeum.entity.Diary;
 import com.maeum.maeum.entity.User;
 import com.maeum.maeum.repository.DiaryRepository;
 import com.maeum.maeum.repository.UserRepository;
+import com.maeum.maeum.exception.CustomException;
+import com.maeum.maeum.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +30,7 @@ public class DiaryService {
     @Transactional
     public DiaryResponse saveDiary(Long userId, DiaryRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         //당일 일기가 이미 있으면 수정, 없으면 새로 저장
         Diary diary = diaryRepository.findByUserAndDate(user, request.getDate())
@@ -50,7 +52,7 @@ public class DiaryService {
     //특정 날짜 일기 조회 (Controller용)
     public Optional<DiaryResponse> getDiary(Long userId, LocalDate date) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         return diaryRepository.findByUserAndDate(user, date)
                 .map(diary -> new DiaryResponse(
@@ -64,7 +66,7 @@ public class DiaryService {
     //일기 목록 조회 (일기 화면 리스트)
     public List<DiaryResponse> getDiaries(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         return diaryRepository.findByUserOrderByDateDesc(user)
                 .stream()
@@ -80,7 +82,7 @@ public class DiaryService {
     //당일 일기 조회 (AI 분석 시 일기 여부 확인)
     public Optional<Diary> getTodayDiary(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         return diaryRepository.findByUserAndDate(user, LocalDate.now());
     }
 }

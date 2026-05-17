@@ -12,6 +12,8 @@ import com.maeum.maeum.entity.RefreshToken;
 import com.maeum.maeum.entity.User;
 import com.maeum.maeum.repository.RefreshTokenRepository;
 import com.maeum.maeum.repository.UserRepository;
+import com.maeum.maeum.exception.CustomException;
+import com.maeum.maeum.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,11 +55,11 @@ public class AuthService {
         );
 
         Map<String, Object> kakaoUser = response.getBody();
-        if (kakaoUser == null) throw new RuntimeException("카카오 유저 정보를 가져올 수 없습니다.");
+        if (kakaoUser == null) throw new CustomException(ErrorCode.KAKAO_LOGIN_FAILED);
         String kakaoId = String.valueOf(kakaoUser.get("id"));
 
         Map<String, Object> properties = (Map<String, Object>) kakaoUser.get("properties");
-        if (properties == null) throw new RuntimeException("카카오 프로필 정보를 가져올 수 없습니다.");
+        if (properties == null) throw new CustomException(ErrorCode.KAKAO_PROFILE_NOT_FOUND);
         String nickname = (String) properties.get("nickname");
         String profileImage = (String) properties.get("profile_image");
 
@@ -94,18 +96,18 @@ public class AuthService {
     public AuthResponse refreshAccessToken(String refreshToken) {
         //Refresh Token 검증
         if (!jwtUtil.validateToken(refreshToken)) {
-            throw new RuntimeException("유효하지 않은 Refresh Token입니다.");
+            throw new CustomException(ErrorCode.INVALID_TOKEN);
         }
 
         //DB에서 Refresh Token 조회
         RefreshToken storedToken = refreshTokenRepository
                 .findByToken(refreshToken)
-                .orElseThrow(() -> new RuntimeException("Refresh Token을 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
 
         //만료 확인
         if (storedToken.getExpiryDate().isBefore(LocalDateTime.now())) {
             refreshTokenRepository.delete(storedToken);
-            throw new RuntimeException("만료된 Refresh Token입니다.");
+            throw new CustomException(ErrorCode.EXPIRED_TOKEN);
         }
 
         User user = storedToken.getUser();
@@ -130,7 +132,7 @@ public class AuthService {
     @Transactional
     public void logout(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         refreshTokenRepository.deleteByUser(user);
     }
 

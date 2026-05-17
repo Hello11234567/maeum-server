@@ -9,6 +9,8 @@ import com.maeum.maeum.dto.request.AiAnalysisRequest;
 import com.maeum.maeum.dto.response.AiAnalysisResponse;
 import com.maeum.maeum.entity.AiAnalysis;
 import com.maeum.maeum.entity.User;
+import com.maeum.maeum.exception.CustomException;
+import com.maeum.maeum.exception.ErrorCode;
 import com.maeum.maeum.repository.AiAnalysisRepository;
 import com.maeum.maeum.repository.UserRepository;
 import com.maeum.maeum.repository.DiaryRepository;
@@ -20,7 +22,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
-import javax.print.attribute.standard.Media;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.HashMap;
@@ -39,7 +40,7 @@ public class AiAnalysisService {
     @Value("${openai.api-key}")
     private String openAiApiKey;
 
-    @Value("{openai.model}")
+    @Value("${openai.model}")
     private String openAiModel;
 
     //AI 분석 요청 및 결과 저장
@@ -51,7 +52,7 @@ public class AiAnalysisService {
     @Transactional
     public AiAnalysisResponse analyze(Long userId, AiAnalysisRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         //니증에 OpenAI API 연동 시 구현
         //1. 프롬프트 생성
@@ -94,7 +95,7 @@ public class AiAnalysisService {
     //당일 결과 보기, 캘린더 날짜 길게 누를 때 사용
     public Optional<AiAnalysisResponse> getAnalysis(Long userId, LocalDate date) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         return aiAnalysisRepository
                 .findByUserAndDate(user, date)
                 .map(this::toResponse);
@@ -173,7 +174,7 @@ public class AiAnalysisService {
 
             return mapper.readValue(content.trim(), Map.class);
         } catch (Exception e) {
-            throw new RuntimeException("AI 분석 결과를 불러오지 못했습니다.");
+            throw new CustomException(ErrorCode.AI_ANALYSIS_FAILED);
         }
     }
 }
