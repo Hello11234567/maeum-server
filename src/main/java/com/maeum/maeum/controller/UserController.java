@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -26,6 +28,16 @@ public class UserController {
         UserResponse response = userService.getUser(userId);
 
         return ResponseEntity.ok(response);
+    }
+
+    //마이페이지 통계 조회
+    //Flutter: mypage_screen.dart (통계 표시)
+    @GetMapping("/me/stats")
+    public ResponseEntity<Map<String, Object>> getUserStats(Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        Map<String, Object> stats = userService.getUserStats(userId);
+
+        return ResponseEntity.ok(stats);
     }
 
     //프로필 수정

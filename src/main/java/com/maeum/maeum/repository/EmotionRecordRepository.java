@@ -24,4 +24,10 @@ public interface EmotionRecordRepository extends JpaRepository<EmotionRecord, Lo
 
     //유저의 월별 감정 기록 조회 (캘린더에 날짜별 이모지 표시에 사용)
     List<EmotionRecord> findByUserAndDateBetweenOrderByDateAsc(User user, LocalDate startDate, LocalDate endDate);
+
+    //총 감정 기록 일수
+    long countByUser(User user);
+
+    //기간별 감정 기록 횟수
+    long countByUserAndDateBetween(User user, LocalDate startDate, LocalDate endDate);
 }

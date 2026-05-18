@@ -23,4 +23,7 @@ public interface AiAnalysisRepository extends JpaRepository<AiAnalysis, Long> {
 
     //특정 기간의 AI 분석 결과 조회 (통계 AI 요약에 사용)
     List<AiAnalysis> findByUserAndDateBetweenOrderByDateAsc(User user, LocalDate startDate, LocalDate endDate);
+
+    //AI 분석 횟수
+    long countByUser(User user);
 }

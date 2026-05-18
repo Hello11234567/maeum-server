@@ -12,16 +12,24 @@ import com.maeum.maeum.entity.User;
 import com.maeum.maeum.exception.CustomException;
 import com.maeum.maeum.exception.ErrorCode;
 import com.maeum.maeum.repository.UserRepository;
+import com.maeum.maeum.repository.EmotionRecordRepository;
+import com.maeum.maeum.repository.AiAnalysisRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final EmotionRecordRepository emotionRecordRepository;
+    private final AiAnalysisRepository aiAnalysisRepository;
 
     //유저 정보 조회 (마이페이지)
     public UserResponse getUser(Long userId) {
@@ -33,19 +41,39 @@ public class UserService {
                 user.getProfileImage(),
                 user.getIntro(),
                 user.getAgeRange(),
-                user.getNotificationsEnabled(),
-                user.getCreatedAt()
+                user.getNotificationsEnabled()
         );
     }
 
-    //마음이와 함께한 N일 계산
-    public Long getDaysWithMaeum(Long userId) {
+    //마이페이지 통계 조회
+    public Map<String, Object> getUserStats(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        return ChronoUnit.DAYS.between(
+
+        //총 기록 일수
+        long totalDays = emotionRecordRepository.countByUser(user);
+
+        //이번 달 기록 일수
+        LocalDate monthStart = LocalDate.now().with(TemporalAdjusters.firstDayOfMonth());
+        LocalDate monthEnd = LocalDate.now().with(TemporalAdjusters.lastDayOfMonth());
+        long thisMonthDays = emotionRecordRepository.countByUserAndDateBetween(user, monthStart, monthEnd);
+
+        //AI 분석 횟수
+        long aiCount = aiAnalysisRepository.countByUser(user);
+
+        //마음이와 함께한 N일 계산
+        long daysWithMaeum = ChronoUnit.DAYS.between(
                 user.getCreatedAt().toLocalDate(),
                 LocalDate.now()
         ) + 1; //가입한 날부터 1일로 계산하기 위해 +1
+
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("totalDays", totalDays);
+        stats.put("thisMonthDays", thisMonthDays);
+        stats.put("aiCount", aiCount);
+        stats.put("daysWithMaeum", daysWithMaeum);
+
+        return stats;
     }
 
     //프로필 수정

@@ -6,7 +6,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class MaeumApplication {
+public class  MaeumApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(MaeumApplication.class, args);
 	}

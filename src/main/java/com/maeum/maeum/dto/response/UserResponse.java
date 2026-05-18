@@ -27,7 +27,4 @@ public class UserResponse {
 
     //전체 알림 ON/OFF
     private Boolean notificationsEnabled;
-
-    //가입일 (마음이와 함께한 N일 계산용)
-    private LocalDateTime createdAt;
 }
