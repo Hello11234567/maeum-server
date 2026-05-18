@@ -99,13 +99,13 @@ public class StatisticsService {
         result.put("weekStart", weekStart);
         result.put("weekEnd", weekEnd);
 
-        //AI 요약 조회 (임시 - OpenAI 연동 시 교체 예정)
+        //AI 요약 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         List<AiAnalysis> analyses = aiAnalysisRepository
                 .findByUserAndDateBetweenOrderByDateAsc(user, weekStart, weekEnd);
         if (!analyses.isEmpty()) {
-            result.put("aiSummary", analyses.get(analyses.size() - 1).getSummary());
+            result.put("aiSummary", analyses.getLast().getSummary());
         }
 
         return result;
@@ -125,13 +125,13 @@ public class StatisticsService {
         result.put("monthStart", monthStart);
         result.put("monthEnd", monthEnd);
 
-        //AI 요약 조회 (임시 - OpenAI 연동 시 교체 예정)
+        //AI 요약 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         List<AiAnalysis> analyses = aiAnalysisRepository
                 .findByUserAndDateBetweenOrderByDateAsc(user, monthStart, monthEnd);
         if (!analyses.isEmpty()) {
-            result.put("aiSummary", analyses.get(analyses.size() - 1).getSummary());
+            result.put("aiSummary", analyses.getLast().getSummary());
         }
 
         return result;
@@ -144,6 +144,16 @@ public class StatisticsService {
                 .getEmotionRecordsByPeriod(userId, getThisWeekStart(), getThisWeekEnd())));
         result.put("previous", calculateAverage(emotionRecordService
                 .getEmotionRecordsByPeriod(userId, getLastWeekStart(), getLastWeekEnd())));
+
+        //AI 요약 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        List<AiAnalysis> analyses = aiAnalysisRepository
+                .findByUserAndDateBetweenOrderByDateAsc(user, getThisWeekStart(), getThisWeekEnd());
+        if (!analyses.isEmpty()) {
+            result.put("aiSummary", analyses.getLast().getSummary());
+        }
+
         return result;
     }
 
@@ -154,6 +164,16 @@ public class StatisticsService {
                 .getEmotionRecordsByPeriod(userId, getThisMonthStart(), getThisMonthEnd())));
         result.put("previous", calculateAverage(emotionRecordService
                 .getEmotionRecordsByPeriod(userId, getLastMonthStart(), getLastMonthEnd())));
+
+        //AI 요약 조회
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        List<AiAnalysis> analyses = aiAnalysisRepository
+                .findByUserAndDateBetweenOrderByDateAsc(user, getThisMonthStart(), getThisMonthEnd());
+        if (!analyses.isEmpty()) {
+            result.put("aiSummary", analyses.getLast().getSummary());
+        }
+
         return result;
     }
 }
