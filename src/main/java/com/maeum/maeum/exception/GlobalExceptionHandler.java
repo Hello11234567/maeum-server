@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
     //예상치 못한 예외 처리
     //CustomException 외의 모든 예외
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(CustomException e) {
+    public ResponseEntity<ErrorResponse> handleException(Exception e) {
         ErrorResponse response = new ErrorResponse(false, "서버 오류가 발생했습니다.");
 
         return ResponseEntity.status(500).body(response);

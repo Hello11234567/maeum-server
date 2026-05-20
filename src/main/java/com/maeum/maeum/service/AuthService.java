@@ -43,7 +43,7 @@ public class AuthService {
         //2. 유저 정보 저장/조회
         //3. JWT 발급
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer" + request.getAccessToken());
+        headers.set("Authorization", "Bearer " + request.getAccessToken());
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
