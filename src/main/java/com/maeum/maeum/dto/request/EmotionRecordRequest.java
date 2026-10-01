@@ -4,12 +4,14 @@
 
 package com.maeum.maeum.dto.request;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class EmotionRecordRequest {
     //기록 날짜
     private LocalDate date;
