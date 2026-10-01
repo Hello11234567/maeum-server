@@ -46,6 +46,10 @@ public class User {
     @Column(nullable = false)
     private Boolean notificationsEnabled = false;
 
+    //프로필 수정 이력 (환영 팝업 조건에 사용)
+    @Column(nullable = false, columnDefinition = "BIT DEFAULT 0")
+    private Boolean profileUpdated = false;
+
     //가입일 (마음이와 함께한 N일 계산에 사용)
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
