@@ -41,7 +41,8 @@ public class UserService {
                 user.getProfileImage(),
                 user.getIntro(),
                 user.getAgeRange(),
-                user.getNotificationsEnabled()
+                user.getNotificationsEnabled(),
+                user.getProfileUpdated()
         );
     }
 
@@ -85,6 +86,7 @@ public class UserService {
         user.setProfileImage(request.getProfileImage());
         user.setIntro(request.getIntro());
         user.setAgeRange(request.getAgeRange());
+        user.setProfileUpdated(true);
         return getUser(userId);
     }
 
