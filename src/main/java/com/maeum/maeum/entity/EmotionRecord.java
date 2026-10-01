@@ -57,7 +57,7 @@ public class EmotionRecord {
     private String myEmoji;
 
     //AI가 선정한 대표 이모지 (캘린더에 표시)
-    @Column(nullable = false)
+    @Column
     private String aiEmoji;
 
     //마지막 수정 시간 (AI 분석 결과 화면에 표시)
