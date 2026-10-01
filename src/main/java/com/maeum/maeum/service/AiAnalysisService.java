@@ -6,6 +6,7 @@
 package com.maeum.maeum.service;
 
 import com.maeum.maeum.dto.request.AiAnalysisRequest;
+import com.maeum.maeum.dto.request.EmotionRecordRequest;
 import com.maeum.maeum.dto.response.AiAnalysisResponse;
 import com.maeum.maeum.entity.AiAnalysis;
 import com.maeum.maeum.entity.User;
@@ -51,6 +52,7 @@ public class AiAnalysisService {
     //5. AI 이모지 캘린더에 반영
     @Transactional
     public AiAnalysisResponse analyze(Long userId, AiAnalysisRequest request) {
+        System.out.println("analyze 시작");
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
@@ -59,16 +61,29 @@ public class AiAnalysisService {
         //2. OpenAI API 호출
         //3. 결과 파싱 (summary, careList, speechText, representativeEmoji)
 
+        //감정 수치 저장
+        emotionRecordService.saveEmotionRecord(userId, new EmotionRecordRequest(
+                request.getDate(),
+                request.getJoy(),
+                request.getAnger(),
+                request.getAnxiety(),
+                request.getPeace(),
+                request.getSadness()
+        ));
+
         //1. 당일 일기 조회
+        System.out.println("일기 조회 시작");
         String diaryContent = diaryRepository
                 .findByUserAndDate(user, request.getDate())
                 .map(diary -> diary.getContent())
                 .orElse("");
 
         //2. 프롬프트 생성
+        System.out.println("프롬프트 생성 시작");
         String prompt = buildPrompt(request, diaryContent, user);
 
         //3. OpenAI API 호출
+        System.out.println("OpenAI 호출 시작");
         Map<String, Object> aiResult = callOpenAi(prompt);
 
         //4. 결과 저장
@@ -140,40 +155,43 @@ public class AiAnalysisService {
     //OpenAI API 호출
     @SuppressWarnings("unchecked")
     private Map<String, Object> callOpenAi(String prompt) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer" + openAiApiKey);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("model", openAiModel);
-        body.put("messages", List.of(Map.of("role", "User", "content", prompt)));
-        body.put("max_tokens", 1000);
-
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
-
-        ResponseEntity<Map> response = restTemplate.exchange(
-                "https://api.openai.com/v1/chat/completions",
-                HttpMethod.POST,
-                entity,
-                Map.class
-        );
-
-        Map<String, Object> responseBody = response.getBody();
-        List<Map<String, Object>> choices = (List<Map<String, Object>>) responseBody.get("choices");
-        Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
-        String content = (String) message.get("content");
-
-        //JSON 파일
+        System.out.println("callOpenAI 시작");
         try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + openAiApiKey);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            Map<String, Object> body = new HashMap<>();
+            body.put("model", openAiModel);
+            body.put("messages", List.of(Map.of("role", "user", "content", prompt)));
+            body.put("max_tokens", 1000);
+
+            HttpEntity<Map<String, Object>> entity = new HttpEntity<>(body, headers);
+
+            ResponseEntity<Map> response = restTemplate.exchange(
+                    "https://api.openai.com/v1/chat/completions",
+                    HttpMethod.POST,
+                    entity,
+                    Map.class
+            );
+
+            Map<String, Object> responseBody = response.getBody();
+            List<Map<String, Object>> choices = (List<Map<String, Object>>) responseBody.get("choices");
+            Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
+            String content = (String) message.get("content");
+
             content = content.trim();
             if (content.startsWith("```json")) content = content.substring(7);
             if (content.startsWith("```")) content = content.substring(3);
             if (content.endsWith("```")) content = content.substring(0, content.length() - 3);
 
             ObjectMapper mapper = new ObjectMapper();
-
             return mapper.readValue(content.trim(), Map.class);
+
         } catch (Exception e) {
+            System.out.println("OpenAI 호출 에러: " + e.getMessage());
+            System.out.println("에러 타입: " + e.getClass().getName());
+            e.printStackTrace();
             throw new CustomException(ErrorCode.AI_ANALYSIS_FAILED);
         }
     }
