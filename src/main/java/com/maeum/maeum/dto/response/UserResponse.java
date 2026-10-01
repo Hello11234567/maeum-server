@@ -27,4 +27,7 @@ public class UserResponse {
 
     //전체 알림 ON/OFF
     private Boolean notificationsEnabled;
+
+    //프로필 수정 이력
+    private Boolean profileUpdated;
 }
