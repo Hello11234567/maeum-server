@@ -140,6 +140,15 @@ public class AuthService {
     //카카오 ID로 기존 유저 확인, 없으면 신규 저장
     private User saveOrUpdateUser(String kakaoId, String nickname, String profileImage) {
         return userRepository.findByKakaoId(kakaoId)
+                .map(existingUser -> {
+                    //기존 유저도 카카오 프로필 업데이트
+                    if (existingUser.getNickname() == null) {
+                        existingUser.setNickname(nickname);
+                    }
+                    //프로필 이미지는 항상 최신 카카오 이미지로 업데이트
+                    existingUser.setProfileImage(profileImage);
+                    return userRepository.save(existingUser);
+                })
                 .orElseGet(() -> {
                     User newUser = new User();
                     newUser.setKakaoId(kakaoId);
